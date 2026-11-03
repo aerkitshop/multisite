@@ -1,0 +1,100 @@
+# Production stack: app + Postgres 16 (+ optional Cloudflare Tunnel, nightly backups).
+#   docker compose up -d --build                       # app + db + backup
+#   docker compose --profile tunnel up -d              # + cloudflared
+#   docker compose --profile tools run --rm tools pnpm seed   # one-off tasks
+name: multisite
+
+x-db-env: &db-env
+  POSTGRES_USER: ${POSTGRES_USER:-multisite}
+  POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+  POSTGRES_DB: ${POSTGRES_DB:-multisite}
+
+x-app-env: &app-env
+  DATABASE_URI: postgresql://${POSTGRES_USER:-multisite}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-multisite}
+  PAYLOAD_SECRET: ${PAYLOAD_SECRET:?set PAYLOAD_SECRET in .env}
+  NEXT_PUBLIC_SERVER_URL: ${NEXT_PUBLIC_SERVER_URL:-http://localhost:3000}
+  MEDIA_DIR: /app/media
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment: *db-env
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}']
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    # No ports published: only reachable on the compose network.
+
+  app:
+    build:
+      context: .
+      target: runner
+    image: multisite-app:latest
+    restart: unless-stopped
+    environment: *app-env
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - media:/app/media
+    ports:
+      # Bound to loopback only - public traffic arrives through Cloudflare Tunnel.
+      - '127.0.0.1:3000:3000'
+
+  # Cloudflare Tunnel (optional): routes your domains -> http://app:3000
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    profiles: ['tunnel']
+    restart: unless-stopped
+    command: tunnel --no-autoupdate run
+    environment:
+      TUNNEL_TOKEN: ${TUNNEL_TOKEN:?set TUNNEL_TOKEN in .env to use the tunnel profile}
+    depends_on:
+      - app
+
+  # Nightly pg_dump at 03:15 (container TZ), keeps BACKUP_KEEP_DAYS days.
+  backup:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      <<: *db-env
+      PGHOST: postgres
+      PGPASSWORD: ${POSTGRES_PASSWORD}
+      BACKUP_KEEP_DAYS: ${BACKUP_KEEP_DAYS:-14}
+      TZ: ${TZ:-UTC}
+    volumes:
+      - backups:/backups
+      - ./scripts/backup.sh:/usr/local/bin/backup.sh:ro
+    entrypoint: ['/bin/sh', '-c']
+    command:
+      - |
+        echo "15 3 * * * /bin/sh /usr/local/bin/backup.sh >> /proc/1/fd/1 2>&1" > /etc/crontabs/root
+        exec crond -f -l 8
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  # One-off tasks with the full toolchain (payload CLI): migrations, seed.
+  tools:
+    build:
+      context: .
+      target: tools
+    profiles: ['tools']
+    environment:
+      <<: *app-env
+      SEED_ADMIN_EMAIL: ${SEED_ADMIN_EMAIL:-}
+      SEED_ADMIN_PASSWORD: ${SEED_ADMIN_PASSWORD:-}
+    volumes:
+      - media:/app/media
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  pgdata:
+  media:
+  backups:

@@ -1,0 +1,18 @@
+multisite - multi-domain promo/affiliate sites on Payload CMS
+
+This project is derived from:
+  * zubricks/multi-tenant-example  https://github.com/zubricks/multi-tenant-example
+    (commit 57f73fd, cloned 2026-11-03). Declared "license": "MIT" in its package.json;
+    the upstream repository does not ship a LICENSE file, so the MIT text was added
+    here in ./LICENSE. Retained from upstream: Next.js/Payload app skeleton,
+    (payload) admin routes, Host-header rewrite approach, theme provider,
+    fontMapping/hexToHsl utilities, shadcn ui primitives, Tailwind config.
+  * Payload website template (MIT, Payload CMS, Inc.) - upstream of the above.
+
+Design reference (no code copied):
+  * Mkdirs (MkdirsHQ, Apache-2.0) https://demo.mkdirs.com - the card-grid
+    directory layout, category sidebar/chips and featured section were used as
+    visual inspiration only. All frontend code in src/app/(frontend) and
+    src/components/site was written from scratch for this project.
+    If you later copy code from Mkdirs, keep its Apache-2.0 license text and add
+    the attribution here.

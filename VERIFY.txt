@@ -1,0 +1,19 @@
+# verification 2026-11-03T15:23:12Z against production build (node .next/standalone/server.js)
+creator-ai.localhost / -> 200
+<title>CreatorStack AI</title>
+--primary:262 83% 58%;
+aff urls in html: 0  /go links: 10
+smb-ai.localhost / -> 200
+<title>SMB AI Toolkit</title>
+--primary:175 77% 26%;
+aff urls in html: 0  /go links: 10
+tool page /tools/descript -> 200
+post page /blog/descript-review -> 200
+post page smb /blog/ai-support-agent-tutorial -> 200
+/go/elevenlabs -> 302 Location: https://example.com/aff/elevenlabs?ref=creatorstack-demo
+clicks: 3 -> 4
+elevenlabs|/tools/elevenlabs|US
+anon GET /api/tools affiliate keys: none
+API key GET /api/tools affiliate keys: ['affiliateLastCheckedAt', 'affiliatePlatform', 'affiliateStatus', 'affiliateUrl', 'commissionNote']
+API key create tool: Tool successfully created. 15 zapier-ai
+anon create tool: {"errors":[{"message":"You are not allowed to perform this action."}]}
