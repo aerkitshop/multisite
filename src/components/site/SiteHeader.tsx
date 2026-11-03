@@ -10,15 +10,16 @@ import { ThemeToggle } from './ThemeToggle'
 
 type Cat = { slug: string; name: string; icon?: string | null }
 
-const item = 'rounded-lg px-1.5 py-2 text-[13px] text-muted-foreground hover:bg-muted hover:text-foreground sm:px-3 sm:text-sm'
+const item =
+  'whitespace-nowrap rounded-lg px-1 py-2 text-[13px] text-muted-foreground hover:bg-muted hover:text-foreground min-[400px]:px-1.5 sm:px-3 sm:text-sm'
 
 /** Slim header: logo + name, then Home / Categories / Blog / About and the theme toggle. Nothing else. */
 export const SiteHeader: React.FC<{ site: Site; categories: Cat[] }> = ({ site, categories }) => {
   const logo = mediaUrl(site.logo, 'thumbnail')
   return (
     <header className="sticky top-0 z-40 border-b bg-background/80 backdrop-blur">
-      <div className="container flex h-14 items-center justify-between gap-2">
-        <Link href="/" className="flex min-w-0 items-center gap-2 font-semibold">
+      <div className="container flex h-14 items-center justify-between gap-1.5 sm:gap-2">
+        <Link href="/" className="flex min-w-0 items-center gap-1.5 font-semibold sm:gap-2">
           {logo ? (
             <img src={logo} alt="" width={28} height={28} className="h-7 w-7 shrink-0 rounded-lg object-cover" />
           ) : (
@@ -26,7 +27,7 @@ export const SiteHeader: React.FC<{ site: Site; categories: Cat[] }> = ({ site, 
               {site.name.slice(0, 1)}
             </span>
           )}
-          <span className="truncate" style={{ fontFamily: 'var(--font-heading)' }}>
+          <span className="truncate text-[15px] tracking-tight sm:text-base" style={{ fontFamily: 'var(--font-heading)' }}>
             {site.name}
           </span>
         </Link>
@@ -41,7 +42,7 @@ export const SiteHeader: React.FC<{ site: Site; categories: Cat[] }> = ({ site, 
           <Link href="/about" className={item}>
             About
           </Link>
-          <span className="ml-0.5 sm:ml-1">
+          <span className="ml-0.5 shrink-0 sm:ml-1">
             <ThemeToggle />
           </span>
         </nav>

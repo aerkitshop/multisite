@@ -28,7 +28,7 @@ export const CategoriesMenu: React.FC<{ categories: Cat[]; className?: string }>
   return (
     <div ref={ref} className="relative">
       <button type="button" aria-expanded={open} aria-haspopup="menu" onClick={() => setOpen((o) => !o)} className={className}>
-        Categories <span aria-hidden className="text-xs">▾</span>
+        Categories <span aria-hidden className="hidden text-xs sm:inline">▾</span>
       </button>
       {open && (
         <ul role="menu" className="absolute right-0 top-full z-50 mt-1 min-w-52 rounded-xl border bg-popover p-1 text-sm shadow-lg">

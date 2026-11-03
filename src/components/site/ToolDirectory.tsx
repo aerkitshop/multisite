@@ -5,11 +5,12 @@ import React, { useMemo, useState } from 'react'
 import type { PublicToolCard } from '@/lib/data'
 import { cn } from '@/utilities/ui'
 
+import { CategoryChips, CategorySidebar } from './CategoryNav'
 import { ToolCard } from './ToolCard'
 
 type Cat = { slug: string; name: string; icon?: string | null; count: number }
 
-/** Client-side search + category filter (mkdirs-style sidebar + chips). */
+/** Category page directory: category sidebar (links; chips on mobile) + search/pricing filter + grid. */
 export const ToolDirectory: React.FC<{ tools: PublicToolCard[]; categories: Cat[]; initialCategory?: string; from?: string }> = ({
   tools,
   categories,
@@ -17,7 +18,7 @@ export const ToolDirectory: React.FC<{ tools: PublicToolCard[]; categories: Cat[
   from = '/',
 }) => {
   const [q, setQ] = useState('')
-  const [cat, setCat] = useState<string | null>(initialCategory ?? null)
+  const cat = initialCategory ?? null
   const [pricing, setPricing] = useState<string | null>(null)
 
   const filtered = useMemo(() => {
@@ -39,30 +40,8 @@ export const ToolDirectory: React.FC<{ tools: PublicToolCard[]; categories: Cat[
     )
 
   return (
-    <section id="directory" className="grid gap-8 lg:grid-cols-[220px_1fr]">
-      <aside className="hidden lg:block">
-        <div className="sticky top-24 space-y-1">
-          <p className="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Categories</p>
-          <button type="button" onClick={() => setCat(null)} className={cn('flex w-full justify-between rounded-lg px-3 py-2 text-left text-sm', !cat ? 'bg-primary/10 font-medium text-primary-text' : 'hover:bg-muted')}>
-            <span>All tools</span>
-            <span className="text-muted-foreground">{tools.length}</span>
-          </button>
-          {categories.map((c) => (
-            <button
-              key={c.slug}
-              type="button"
-              onClick={() => setCat(c.slug)}
-              className={cn('flex w-full justify-between rounded-lg px-3 py-2 text-left text-sm', cat === c.slug ? 'bg-primary/10 font-medium text-primary-text' : 'hover:bg-muted')}
-            >
-              <span>
-                {c.icon ? `${c.icon} ` : ''}
-                {c.name}
-              </span>
-              <span className="text-muted-foreground">{c.count}</span>
-            </button>
-          ))}
-        </div>
-      </aside>
+    <section id="directory" className="lg:grid lg:grid-cols-[248px_minmax(0,1fr)] lg:items-start lg:gap-8">
+      <CategorySidebar categories={categories} total={tools.length} active={cat} />
 
       <div className="min-w-0">
         <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -84,17 +63,7 @@ export const ToolDirectory: React.FC<{ tools: PublicToolCard[]; categories: Cat[
             ))}
           </div>
         </div>
-        <div className="mb-5 flex gap-2 overflow-x-auto pb-1 lg:hidden">
-          <button type="button" onClick={() => setCat(null)} className={chip(!cat)}>
-            All
-          </button>
-          {categories.map((c) => (
-            <button key={c.slug} type="button" onClick={() => setCat(c.slug)} className={chip(cat === c.slug)}>
-              {c.icon ? `${c.icon} ` : ''}
-              {c.name}
-            </button>
-          ))}
-        </div>
+        <CategoryChips categories={categories} total={tools.length} active={cat} />
         {filtered.length === 0 ? (
           <p className="rounded-2xl border border-dashed p-10 text-center text-muted-foreground">No tools match your filters.</p>
         ) : (

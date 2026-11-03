@@ -3,8 +3,7 @@
 import React, { useEffect, useMemo, useState } from 'react'
 
 import type { PublicToolCard } from '@/lib/data'
-import { cn } from '@/utilities/ui'
-
+import { CategoryChips, CategorySidebar } from './CategoryNav'
 import { ToolCard } from './ToolCard'
 
 type Cat = { slug: string; name: string; icon?: string | null; count: number }
@@ -12,8 +11,8 @@ type Cat = { slug: string; name: string; icon?: string | null; count: number }
 const PAGE = 24
 
 /**
- * The whole homepage directory: compact hero (H1 + subtitle + search), one row of
- * category chips and the tool grid. Everything filters in place; the state is
+ * The whole homepage directory: compact hero (H1 + subtitle + search), then two columns:
+ * a sticky category sidebar (lg+; a chip row on smaller screens) and the tool grid. Everything filters in place; the state is
  * mirrored to ?category= / ?q= so a filtered view can be shared.
  */
 export const HomeDirectory: React.FC<{
@@ -21,7 +20,9 @@ export const HomeDirectory: React.FC<{
   subtitle?: string | null
   tools: PublicToolCard[]
   categories: Cat[]
-}> = ({ title, subtitle, tools, categories }) => {
+  /** Rendered under the grid in the main column (e.g. the latest-posts strip). */
+  children?: React.ReactNode
+}> = ({ title, subtitle, tools, categories, children }) => {
   const [q, setQ] = useState('')
   const [cat, setCat] = useState<string | null>(null)
   const [shown, setShown] = useState(PAGE)
@@ -58,17 +59,11 @@ export const HomeDirectory: React.FC<{
     })
   }, [tools, q, cat])
 
-  const chip = (active: boolean) =>
-    cn(
-      'shrink-0 whitespace-nowrap rounded-full border px-3 py-1.5 text-sm transition',
-      active ? 'border-primary bg-primary text-primary-foreground' : 'bg-background text-muted-foreground hover:border-primary/60 hover:text-foreground',
-    )
-
   return (
     <>
-      <section className="container pb-5 pt-8 text-center md:pt-10">
+      <section className="container pb-6 pt-7 text-center md:pb-8 md:pt-10">
         <h1 className="mx-auto max-w-3xl text-2xl font-bold tracking-tight md:text-4xl">{title}</h1>
-        {subtitle && <p className="mx-auto mt-2 max-w-2xl text-sm text-muted-foreground md:text-base">{subtitle}</p>}
+        {subtitle && <p className="mx-auto mt-2 max-w-4xl text-sm text-muted-foreground md:text-base">{subtitle}</p>}
         <form role="search" className="mx-auto mt-5 max-w-xl" onSubmit={(e) => e.preventDefault()}>
           <label className="relative block">
             <span className="sr-only">Search tools</span>
@@ -95,47 +90,36 @@ export const HomeDirectory: React.FC<{
         </form>
       </section>
 
-      <section id="directory" aria-label="Tool directory" className="container">
-        <div className="-mx-4 mb-5 flex gap-2 overflow-x-auto px-4 pb-1 md:mx-0 md:flex-wrap md:justify-center md:px-0">
-          <button type="button" aria-pressed={!cat} onClick={() => setCat(null)} className={chip(!cat)}>
-            All <span className="opacity-70">{tools.length}</span>
-          </button>
-          {categories.map((c) => (
-            <button
-              key={c.slug}
-              type="button"
-              aria-pressed={cat === c.slug}
-              onClick={() => setCat(cat === c.slug ? null : c.slug)}
-              className={chip(cat === c.slug)}
-            >
-              {c.icon ? `${c.icon} ` : ''}
-              {c.name} <span className="opacity-70">{c.count}</span>
-            </button>
-          ))}
-        </div>
+      <section id="directory" aria-label="Tool directory" className="container lg:grid lg:grid-cols-[248px_minmax(0,1fr)] lg:items-start lg:gap-8">
+        <CategorySidebar categories={categories} total={tools.length} active={cat} onSelect={setCat} />
 
-        {filtered.length === 0 ? (
-          <p className="rounded-xl border border-dashed p-10 text-center text-muted-foreground">No tools match your search.</p>
-        ) : (
-          <>
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {filtered.slice(0, shown).map((t) => (
-                <ToolCard key={t.id} tool={t} from="home" />
-              ))}
-            </div>
-            {filtered.length > shown && (
-              <div className="mt-6 text-center">
-                <button
-                  type="button"
-                  onClick={() => setShown((n) => n + PAGE)}
-                  className="rounded-full border px-5 py-2 text-sm font-medium hover:border-primary hover:text-primary-text"
-                >
-                  Load more ({filtered.length - shown})
-                </button>
+        <div className="min-w-0">
+          <CategoryChips categories={categories} total={tools.length} active={cat} onSelect={setCat} />
+
+          {filtered.length === 0 ? (
+            <p className="rounded-xl border border-dashed p-10 text-center text-muted-foreground">No tools match your search.</p>
+          ) : (
+            <>
+              <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                {filtered.slice(0, shown).map((t) => (
+                  <ToolCard key={t.id} tool={t} from="home" />
+                ))}
               </div>
-            )}
-          </>
-        )}
+              {filtered.length > shown && (
+                <div className="mt-6 text-center">
+                  <button
+                    type="button"
+                    onClick={() => setShown((n) => n + PAGE)}
+                    className="rounded-full border px-5 py-2 text-sm font-medium hover:border-primary hover:text-primary-text"
+                  >
+                    Load more ({filtered.length - shown})
+                  </button>
+                </div>
+              )}
+            </>
+          )}
+          {children}
+        </div>
       </section>
     </>
   )

@@ -12,7 +12,7 @@ export const ThemeToggle: React.FC = () => {
       type="button"
       aria-label={`Switch to ${next} mode`}
       onClick={() => setTheme(next)}
-      className="flex h-9 w-9 items-center justify-center rounded-lg border text-sm hover:bg-muted"
+      className="flex h-8 w-8 items-center sm:h-9 sm:w-9 justify-center rounded-lg border text-sm hover:bg-muted"
     >
       <span aria-hidden>{theme === 'dark' ? '☀' : '☾'}</span>
     </button>

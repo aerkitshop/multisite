@@ -26,7 +26,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 const time = (d?: string | null) => (d ? new Date(d).getTime() : 0)
 
-/** Homepage = the directory itself (mkdirs demo style): short hero, category chips, tool grid. */
+/** Homepage = the directory itself: short hero + search, then sidebar (categories) | tool grid. */
 export default async function HomePage({ params }: Props) {
   const site = await getSiteByDomain((await params).tenant)
   if (!site) notFound()
@@ -79,30 +79,30 @@ export default async function HomePage({ params }: Props) {
         subtitle={site.heroSubtitle}
         tools={cards}
         categories={cats}
-      />
-
-      {posts.length > 0 && (
-        <section className="container mt-12" aria-label="Latest posts">
-          <div className="mb-3 flex items-baseline justify-between">
-            <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Latest posts</h2>
-            <Link href="/blog" className="text-sm font-medium text-primary-text hover:underline">
-              All posts →
-            </Link>
-          </div>
-          <ul className="grid gap-3 md:grid-cols-3">
-            {posts.map((p) => (
-              <li key={p.id} className="rounded-xl border bg-card p-4">
-                <Link href={`/blog/${p.slug}`} className="line-clamp-2 font-medium leading-snug hover:text-primary-text">
-                  {p.title}
-                </Link>
-                <time dateTime={p.publishedAt || undefined} className="mt-1 block text-xs text-muted-foreground">
-                  {formatDate(p.publishedAt)}
-                </time>
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
+      >
+        {posts.length > 0 && (
+          <section className="mt-10" aria-label="Latest posts">
+            <div className="mb-2 flex items-baseline justify-between">
+              <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Latest posts</h2>
+              <Link href="/blog" className="text-sm font-medium text-primary-text hover:underline">
+                All posts →
+              </Link>
+            </div>
+            <ul className="grid gap-3 md:grid-cols-3">
+              {posts.map((p) => (
+                <li key={p.id} className="rounded-lg border bg-card px-3.5 py-3">
+                  <Link href={`/blog/${p.slug}`} className="line-clamp-2 text-sm font-medium leading-snug hover:text-primary-text">
+                    {p.title}
+                  </Link>
+                  <time dateTime={p.publishedAt || undefined} className="mt-1 block text-xs text-muted-foreground">
+                    {formatDate(p.publishedAt)}
+                  </time>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+      </HomeDirectory>
     </>
   )
 }

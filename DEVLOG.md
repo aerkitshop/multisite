@@ -92,3 +92,32 @@ Goal: visitors land directly on the directory, no clicking around.
   `creator-header-categories.png`.
 - Gotcha: `pkill -f '<pattern>'` inside the same shell command line kills that shell too (pattern matches
   its own argv) - kill by PID instead.
+
+## 2026-11-03 - homepage: two-column layout (bestdirectories.org style, without its clutter)
+
+Reference: headless-Chromium screenshots of https://bestdirectories.org/ at 1440 / 390 px (kept outside the
+repo). Its two columns = a left boxed category list + a 3-column card grid on the right; on mobile the
+sidebar disappears. Its sidebar is NOT sticky (only the header is); ours is, as asked.
+- New `CategoryNav.tsx`: `CategorySidebar` (lg+, `sticky top-20`, boxed list "All tools" + each category with
+  icon, name and count; active = brand tint) and `CategoryChips` (< lg, horizontal scroll chip row above the
+  grid). Both render buttons when given `onSelect` (filter in place) or links to `/category/<slug>` otherwise.
+- `HomeDirectory.tsx`: compact hero (H1 + subtitle + search) then `lg:grid-cols-[248px_minmax(0,1fr)]`:
+  sidebar | grid (`sm:2 / xl:3` columns -> 2 at 1024-1279 px, 3 at >= 1280 px). `?category=` / `?q=` sync kept.
+  The 3-post "Latest posts" strip is passed as children and sits small under the grid in the main column.
+- `ToolCard.tsx` restyled like their cards: 44px logo, name + amber "★ Featured" pill top-right, grey category
+  badges, 2-line description, "# tag" row, pricing badge + Visit button; featured cards get an amber tint
+  (dark: `amber-400/[0.06]`). Links unchanged (`/go/<slug>?src=home`, `_blank`, `sponsored nofollow noopener`;
+  card body -> `/tools/<slug>`).
+- Category page (`ToolDirectory.tsx`) uses the same sidebar/chips (as links, current one highlighted); its
+  search + pricing chips are unchanged.
+- Header at 390 px: "SMB AI Toolkit" / "CreatorStack AI" no longer truncated (smaller nav padding < 400 px,
+  dropdown caret hidden < sm, 32px theme toggle on mobile). Checked: name span scrollWidth == clientWidth.
+- Not added: newsletter, submit/sign-in/pricing/advertise, promo box, sort/filter dropdowns, badges, traffic/DR
+  stats, big footer.
+- Local: Postgres 17 + migrate + seed in /tmp/build, `pnpm build` EXIT 0. Playwright: sidebar click 6 -> 3 and
+  URL `?category=voice-audio`, + search "podcast" -> 2 and `&q=podcast`, deep link `?category=` -> 3, aside
+  `position: sticky`, mobile aside hidden + chip filter works; 0 affiliate URLs in HTML; 6 `/go/...?src=home`.
+  Screenshots: `docs/screenshots/{creator,smb}-home-{desktop,desktop-dark,mobile,laptop}.png`, `creator-category.png`.
+- Gotchas: the Next standalone process shows up as `next-server (v...)` in ps (not `node server.js`); a stale
+  server on :3000 made the new one fail with EADDRINUSE. Sandbox Chromium must get `--no-proxy-server` for
+  *.localhost (env proxy otherwise) and a local auth-adding forward proxy for external sites.
