@@ -12,6 +12,7 @@
     --popover-foreground: 222 47% 11%;
     --primary: 243 75% 59%;
     --primary-foreground: 0 0% 100%;
+    --primary-text: 243 75% 59%;
     --secondary: 210 40% 96%;
     --secondary-foreground: 222 47% 11%;
     --muted: 220 14% 96%;
@@ -31,6 +32,7 @@
   }
 
   [data-theme='dark'] {
+    --primary-text: 243 90% 76%;
     --background: 240 10% 4%;
     --foreground: 0 0% 96%;
     --card: 240 8% 8%;

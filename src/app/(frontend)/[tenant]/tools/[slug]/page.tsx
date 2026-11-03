@@ -185,7 +185,7 @@ export default async function ToolPage({ params }: Props) {
               <ul className="mt-3 space-y-1">
                 {tool.sourceUrls.map((s, i) => (
                   <li key={s.id || i} className="truncate">
-                    <a href={s.url} rel="nofollow noopener" target="_blank" className="text-primary hover:underline">{s.note || s.url}</a>
+                    <a href={s.url} rel="nofollow noopener" target="_blank" className="text-primary-text hover:underline">{s.note || s.url}</a>
                   </li>
                 ))}
               </ul>

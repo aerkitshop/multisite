@@ -10,6 +10,13 @@ const expand = (hex?: string | null) => {
   return h.length === 3 ? `#${h.split('').map((c) => c + c).join('')}` : hex
 }
 
+/** "H S% L%" -> same hue/saturation with lightness >= min. */
+const liftLightness = (hsl: string, min: number) => {
+  const m = hsl.match(/^(\S+)\s+(\S+)%\s+(\S+)%$/)
+  if (!m) return hsl
+  return `${m[1]} ${m[2]}% ${Math.max(Number(m[3]), min)}%`
+}
+
 /** Injects the site's colours & fonts as CSS variables (light + dark). */
 export const TenantStyles: React.FC<{ site: Site }> = ({ site }) => {
   const c = site.colors || {}
@@ -20,6 +27,10 @@ export const TenantStyles: React.FC<{ site: Site }> = ({ site }) => {
   if (primary) {
     const fg = v(c.primaryForeground) || '0 0% 100%'
     for (const arr of [light, dark]) arr.push(`--primary:${primary};`, `--primary-foreground:${fg};`, `--ring:${primary};`)
+    // Brand-coloured text (badges, links). Dark brand colours (e.g. teal 26% L) are unreadable on the
+    // dark background, so in dark mode the lightness is raised to at least 70%.
+    light.push(`--primary-text:${primary};`)
+    dark.push(`--primary-text:${liftLightness(primary, 70)};`)
   }
   const accent = v(c.accent)
   if (accent) for (const arr of [light, dark]) arr.push(`--brand-accent:${accent};`)

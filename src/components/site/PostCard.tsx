@@ -29,7 +29,7 @@ export const PostCard: React.FC<{ post: Post }> = ({ post }) => {
       </div>
       <div className="space-y-2 p-5">
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
-          <span className="rounded-full bg-primary/10 px-2 py-0.5 font-medium text-primary">
+          <span className="rounded-full bg-primary/10 px-2 py-0.5 font-medium text-primary-text">
             {postTypeLabel[post.type] || post.type}
           </span>
           <time dateTime={post.publishedAt || undefined}>{formatDate(post.publishedAt)}</time>

@@ -65,3 +65,30 @@ node_modules/.next) because the workspace filesystem is a network FS and slow fo
 - Note: during the rebuild the old server kept port 3000 (new one hit EADDRINUSE) - killed it and restarted;
   VERIFY.txt is from the rebuilt server.
 - Not exercised in the sandbox: `pnpm dev`, Docker build/compose, cloudflared, backup cron (no Docker available).
+
+## 2026-11-03 - simplified homepage (mkdirs demo/showcase style)
+
+Goal: visitors land directly on the directory, no clicking around.
+- `/` is now: compact hero (one-line H1 + subtitle + search) -> one row of category chips ("All" + categories
+  with counts) -> tool grid (1/2/3/4 columns). Search and chips filter in place (`HomeDirectory.tsx`, client)
+  and mirror to `?category=` / `?q=` via `history.replaceState` (page stays ISR/static). Sort: featured first,
+  then newest (`createdAt`, now in the tools select). >24 results -> "Load more". Removed the big hero,
+  "Featured tools" and "Browse the directory" sections; kept a 3-post "Latest posts" strip.
+- Cards (`ToolCard.tsx`, also used on category/tool pages): logo, name (+ star if featured), category badges,
+  2-line description, up to 3 #tags, pricing badge, "Visit" button -> `/go/<slug>?src=home`
+  (`rel="sponsored nofollow noopener"`, `target=_blank`); card body -> `/tools/<slug>`.
+- Header: logo + name, Home / Categories (dropdown, `CategoriesMenu.tsx`) / Blog / About + theme toggle.
+  Nav is fixed in code now (the per-site `header` global is no longer rendered). Top disclosure banner removed;
+  the disclosure sentence is in the one-line footer (About / Disclosure / Privacy / Sitemap).
+- JSON-LD on `/`: `WebSite` + `ItemList` (ListItem per tool -> /tools/<slug>).
+- Dark-mode contrast: new `--primary-text` var (Tailwind `text-primary-text`). Light = brand colour; dark =
+  same hue with lightness >= 70% (TenantStyles). All `text-primary` usages switched, which fixes the
+  unreadable dark-teal badges on smb-ai in dark mode.
+- Local: Postgres 17 (apt) + migrate + seed in /tmp/build, `pnpm build` EXIT 0. Checks on the standalone
+  server: both homes 200, 6 cards each with `/go/<slug>?src=home`, 0 affiliate URLs in HTML, ItemList present;
+  tool/blog/category/about/disclosure/privacy/sitemap/robots 200, unknown 404, `/go/*` 302. Playwright
+  (Debian chromium): chip filter 6 -> 3 and URL `?category=voice-audio`, search narrows to 1, `?category=` deep
+  link works. Screenshots: `docs/screenshots/{creator,smb}-home-{desktop,desktop-dark,mobile}.png`,
+  `creator-header-categories.png`.
+- Gotcha: `pkill -f '<pattern>'` inside the same shell command line kills that shell too (pattern matches
+  its own argv) - kill by PID instead.

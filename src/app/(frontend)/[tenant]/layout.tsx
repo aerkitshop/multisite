@@ -5,10 +5,9 @@ import React from 'react'
 
 import { TenantFonts } from '@/components/TenantFonts'
 import { TenantStyles } from '@/components/TenantStyles'
-import { DisclosureBanner } from '@/components/site/DisclosureBanner'
 import { SiteFooter } from '@/components/site/SiteFooter'
 import { SiteHeader } from '@/components/site/SiteHeader'
-import { getFooter, getHeader } from '@/lib/data'
+import { getCategories, getFooter } from '@/lib/data'
 import { absoluteUrl, getSiteByDomain, mediaUrl, siteBaseUrl } from '@/lib/site'
 import { Providers } from '@/providers'
 import { InitTheme } from '@/providers/Theme/InitTheme'
@@ -48,7 +47,8 @@ export default async function TenantLayout({ children, params }: Props) {
     )
   }
 
-  const [header, footer] = await Promise.all([getHeader(site.id), getFooter(site.id)])
+  const [categories, footer] = await Promise.all([getCategories(site.id), getFooter(site.id)])
+  const navCats = categories.map((c) => ({ slug: c.slug, name: c.name, icon: c.icon }))
 
   return (
     <html className={cn(GeistSans.variable, GeistMono.variable)} lang="en" suppressHydrationWarning>
@@ -59,8 +59,7 @@ export default async function TenantLayout({ children, params }: Props) {
       </head>
       <body data-site={site.slug}>
         <Providers>
-          <DisclosureBanner text={site.affiliateDisclosure} />
-          <SiteHeader site={site} header={header} />
+          <SiteHeader site={site} categories={navCats} />
           <main className="flex-1">{children}</main>
           <SiteFooter site={site} footer={footer} />
         </Providers>

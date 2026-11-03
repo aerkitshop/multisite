@@ -86,7 +86,7 @@ export default async function PostPage({ params }: Props) {
       </nav>
       <header className="mx-auto max-w-3xl text-center">
         <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
-          <span className="rounded-full bg-primary/10 px-2.5 py-0.5 font-medium text-primary">{postTypeLabel[post.type] || post.type}</span>
+          <span className="rounded-full bg-primary/10 px-2.5 py-0.5 font-medium text-primary-text">{postTypeLabel[post.type] || post.type}</span>
           <time dateTime={post.publishedAt || undefined}>{formatDate(post.publishedAt)}</time>
         </div>
         <h1 className="mt-4 text-3xl font-bold leading-tight md:text-5xl">{post.title}</h1>
@@ -102,11 +102,11 @@ export default async function PostPage({ params }: Props) {
               <ul className="space-y-2 border-l">
                 {headings.map((h) => (
                   <li key={h.id} className={h.level === 3 ? 'pl-6' : 'pl-3'}>
-                    <a href={`#${h.id}`} className="text-muted-foreground hover:text-primary">{h.text}</a>
+                    <a href={`#${h.id}`} className="text-muted-foreground hover:text-primary-text">{h.text}</a>
                   </li>
                 ))}
                 {faq.length > 0 && (
-                  <li className="pl-3"><a href="#faq" className="text-muted-foreground hover:text-primary">FAQ</a></li>
+                  <li className="pl-3"><a href="#faq" className="text-muted-foreground hover:text-primary-text">FAQ</a></li>
                 )}
               </ul>
             </nav>
@@ -123,7 +123,7 @@ export default async function PostPage({ params }: Props) {
                 {faq.map((f, i) => (
                   <details key={f.id || i} className="group p-5" open={i === 0}>
                     <summary className="cursor-pointer list-none font-medium marker:hidden">
-                      <span className="mr-2 text-primary group-open:rotate-45">+</span>
+                      <span className="mr-2 text-primary-text group-open:rotate-45">+</span>
                       {f.q}
                     </summary>
                     <p className="mt-3 text-muted-foreground">{f.a}</p>
@@ -139,7 +139,7 @@ export default async function PostPage({ params }: Props) {
               <ul className="list-disc space-y-1 pl-5 text-muted-foreground">
                 {post.sourceUrls.map((s, i) => (
                   <li key={s.id || i}>
-                    <a href={s.url} target="_blank" rel="nofollow noopener" className="hover:text-primary">{s.note || s.url}</a>
+                    <a href={s.url} target="_blank" rel="nofollow noopener" className="hover:text-primary-text">{s.note || s.url}</a>
                   </li>
                 ))}
               </ul>
@@ -156,7 +156,7 @@ export default async function PostPage({ params }: Props) {
                   <div className="flex items-center gap-3">
                     <ToolLogo src={mediaUrl(t.logo, 'thumbnail')} name={t.name} size={40} />
                     <div className="min-w-0">
-                      <Link href={`/tools/${t.slug}`} className="block truncate font-medium hover:text-primary">{t.name}</Link>
+                      <Link href={`/tools/${t.slug}`} className="block truncate font-medium hover:text-primary-text">{t.name}</Link>
                       <PricingBadge model={t.pricingModel} />
                     </div>
                   </div>

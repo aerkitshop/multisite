@@ -55,6 +55,7 @@ export const getTools = (siteId: ID) =>
         tags: true,
         featured: true,
         updatedAt: true,
+        createdAt: true,
       },
       ...pub,
     })
@@ -163,6 +164,7 @@ export type PublicToolCard = {
   featured: boolean
   categories: { slug: string; name: string }[]
   tags: string[]
+  createdAt: string | null
 }
 
 export const toToolCard = (t: Tool): PublicToolCard => {
@@ -180,5 +182,6 @@ export const toToolCard = (t: Tool): PublicToolCard => {
       .filter((c): c is Category => typeof c === 'object' && c !== null)
       .map((c) => ({ slug: c.slug, name: c.name })),
     tags: (t.tags || []).filter(Boolean) as string[],
+    createdAt: t.createdAt ?? null,
   }
 }

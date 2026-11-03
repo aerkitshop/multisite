@@ -41,7 +41,7 @@ export const RichText: React.FC<{ data: unknown; className?: string }> = ({ data
     <LexicalRichText
       data={data as SerializedEditorState}
       converters={converters}
-      className={cn('prose prose-neutral max-w-none dark:prose-invert prose-headings:font-semibold prose-a:text-primary', className)}
+      className={cn('prose prose-neutral max-w-none dark:prose-invert prose-headings:font-semibold prose-a:text-primary-text', className)}
     />
   )
 }

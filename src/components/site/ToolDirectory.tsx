@@ -43,7 +43,7 @@ export const ToolDirectory: React.FC<{ tools: PublicToolCard[]; categories: Cat[
       <aside className="hidden lg:block">
         <div className="sticky top-24 space-y-1">
           <p className="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Categories</p>
-          <button type="button" onClick={() => setCat(null)} className={cn('flex w-full justify-between rounded-lg px-3 py-2 text-left text-sm', !cat ? 'bg-primary/10 font-medium text-primary' : 'hover:bg-muted')}>
+          <button type="button" onClick={() => setCat(null)} className={cn('flex w-full justify-between rounded-lg px-3 py-2 text-left text-sm', !cat ? 'bg-primary/10 font-medium text-primary-text' : 'hover:bg-muted')}>
             <span>All tools</span>
             <span className="text-muted-foreground">{tools.length}</span>
           </button>
@@ -52,7 +52,7 @@ export const ToolDirectory: React.FC<{ tools: PublicToolCard[]; categories: Cat[
               key={c.slug}
               type="button"
               onClick={() => setCat(c.slug)}
-              className={cn('flex w-full justify-between rounded-lg px-3 py-2 text-left text-sm', cat === c.slug ? 'bg-primary/10 font-medium text-primary' : 'hover:bg-muted')}
+              className={cn('flex w-full justify-between rounded-lg px-3 py-2 text-left text-sm', cat === c.slug ? 'bg-primary/10 font-medium text-primary-text' : 'hover:bg-muted')}
             >
               <span>
                 {c.icon ? `${c.icon} ` : ''}

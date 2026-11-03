@@ -45,7 +45,7 @@ slug 在**同一站点内唯一**（数据库复合唯一索引 `tenant_id + slu
 
 | 路径 | 内容 |
 |---|---|
-| `/` | Hero、分类入口、精选工具、目录（左侧分类栏 / 移动端分类 chips、搜索框和定价筛选，纯前端过滤）、最新文章 |
+| `/` | 直接就是目录（参考 mkdirs demo/showcase）：一行标题 + 一行副标题 + 搜索框；一行分类 chips（All + 各分类，原地筛选，URL 同步 `?category=` / `?q=`）；随后立即是工具网格（桌面 3–4 列 / 手机 1 列，精选优先、再按最新；超过 24 个显示 "Load more"）；底部 3 篇最新文章小条。JSON-LD `WebSite` + `ItemList` |
 | `/tools/<slug>` | 截图、详情、功能、定价卡片、标签、来源、相关文章、同类工具、"Visit website" 按钮；JSON-LD `SoftwareApplication` + `BreadcrumbList` |
 | `/category/<slug>` | 分类页 |
 | `/blog`、`/blog/<slug>` | 文章列表；文章页三栏：目录（TOC）/正文+FAQ/相关工具；JSON-LD `Article` + `FAQPage` |
@@ -53,7 +53,8 @@ slug 在**同一站点内唯一**（数据库复合唯一索引 `tenant_id + slu
 | `/go/<slug>` | 记录点击 → 302 到 affiliateUrl（没有则官网） |
 | `/sitemap.xml`、`/robots.txt` | 每站独立 |
 
-- 所有出站工具链接都走 `/go/<slug>?src=<来源页>`，带 `rel="sponsored nofollow noopener"` 和 `target="_blank"`，HTML 里永远不出现联盟链接。
+- 页头只有：Logo+站名、Home、Categories（下拉）、Blog、About、亮/暗切换。页脚一行：版权 + 联盟披露 + About/Disclosure/Privacy/Sitemap。
+- 所有出站工具链接都走 `/go/<slug>?src=<来源页>`（首页为 `src=home`），带 `rel="sponsored nofollow noopener"` 和 `target="_blank"`，HTML 里永远不出现联盟链接。
 - 每页有 canonical、OG、Twitter 卡片（域名取站点的 `primaryDomain`）。
 - 页面是 ISR（首个请求生成并缓存，`revalidate=3600` 兜底）；内容保存/发布时 `afterChange` 钩子调用 `revalidateTag('site:<id>')`，该站所有页面立即失效重建。草稿保存不会触发。
 - 主题色/字体通过 CSS 变量注入（`src/components/TenantStyles`），支持亮/暗模式切换。
