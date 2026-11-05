@@ -121,3 +121,64 @@ sidebar disappears. Its sidebar is NOT sticky (only the header is); ours is, as 
 - Gotchas: the Next standalone process shows up as `next-server (v...)` in ps (not `node server.js`); a stale
   server on :3000 made the new one fail with EADDRINUSE. Sandbox Chromium must get `--no-proxy-server` for
   *.localhost (env proxy otherwise) and a local auth-adding forward proxy for external sites.
+
+## 2026-11-05 - visual polish: real images, credible copy, idempotent content update
+
+Goal: the directory looked like a template (letter-avatar logos, no images, text-only cards/blog). Layout kept
+(sticky category sidebar + card grid), nothing added to the chrome (no newsletter/submit/pricing/sign-in).
+
+### Images (real, small, committed under `src/seed/assets/`, ~1.1 MB webp total)
+- Per tool: `<tool>-logo.webp` (apple-touch-icon / webclip from the official site; Grammarly + Canva from their
+  official App Store listings because the sites expose only 32-48 px icons / block bots), `<tool>-og.webp` (the
+  homepage og:image; Canva's read via headless Chromium), `<tool>-home.webp` (headless-Chromium screenshot of
+  the official homepage, 1440x810, cookie banners removed), `runway-hero.webp` / `elevenlabs-hero.webp` (tight
+  crops of their homepage hero - their og:image is a bare wordmark). Logos 256 px, covers 1280x720 q78-80.
+- Blog covers `post-*.webp`: generated editorial illustrations (abstract clay-render, no text, no product UI).
+- Site brand marks `site-<slug>-logo.webp` + `site-<slug>-og.webp` (1200x630 share image with the real tool logos),
+  drawn with PIL (Poppins / Montserrat).
+- New tool fields + migration `20261105_032810_tool_cover_tagline`: `tagline`, `bestFor`, `startingPrice`, `cover`
+  (upload). `screenshots` is the tool-page gallery.
+- `next/image` everywhere on the frontend (`images.unoptimized` removed; `localPatterns /api/media/file/**`,
+  WebP output, 30-day cache in `.next/cache/images`, explicit `sizes`, lazy except above-the-fold `priority`).
+
+### Copy (both sites)
+- Hero title/subtitle, category descriptions (lucide icon names instead of emoji), every tool's tagline,
+  2-line description, best-for, features, about text, starting price + pricing summary, 4 blog posts
+  (titles, excerpts, bodies, FAQ). Pricing/features checked on each official pricing page on 2026-11-04
+  (URLs stored in each tool's `sourceUrls`); no ratings / user counts / invented stats. Notable facts:
+  Runway now lives at runway.com, Riverside at riverside.com, Grammarly is part of Superhuman.
+
+### UI
+- Home hero: grid + brand glow background, "Updated <Mon YYYY> · N tools hand-tested" pill (month of the
+  newest tool `updatedAt`), larger H1, search, row of real tool logos. Result header ("All tools 6").
+- `ToolCard`: 16:9 cover (hover zoom), Featured pill on the image, 34 px real logo, name + main category,
+  tagline, 2-line description, pricing badge + starting price, Visit button. Gradient fallback without image.
+- Sidebar/chips/menu use lucide icons (`CategoryIcon`, emoji still rendered for old data).
+- Tool page: logo + tagline header, large screenshot hero with thumbnail gallery (`ToolGallery`), "Best for"
+  callout, features with checks, sticky pricing card (starting price, summary, Visit), tags, sources.
+- Blog index: lead post as a wide feature card + grid; home "Latest from the blog" uses image cards; post
+  hero via next/image. Theme toggle uses lucide Sun/Moon.
+
+### Updating live data: `pnpm content:update` (src/seed/update-content.ts)
+- Never wipes/reseeds. Finds sites, categories, tools, posts BY SLUG and updates them; creates only what is
+  missing. Affiliate fields are never touched; posts keep publishedAt/status.
+- Media upserted by (site, filename) via `src/seed/media.ts`: matches `<stem>(-N).<ext>` (Payload suffixes taken
+  names), keeps a doc whose file exists on disk, re-uploads if the file is missing; `-- --force-media` re-uploads
+  all; `-- --dry` reports only. Payload re-encodes uploads, so sizes can't be compared with the source.
+- Local: run twice on a copy of the old seeded DB -> 2nd run `media kept 46, created 0`. Fresh DB:
+  migrate + `pnpm seed` (now uses the same assets) + `content:update` -> `kept 46`.
+
+### Verification
+- Local (Postgres 17, /tmp/build mirror): `pnpm build` OK; both homes 200, 6 `/go/<slug>?src=home` links each,
+  0 affiliate URLs in HTML, `/go/descript` 302, tool/blog/post/category/about 200, `/_next/image` -> 200 webp.
+- Screenshots (Playwright + Debian Chromium): `docs/screenshots/creator-home-desktop.png`,
+  `creator-home-desktop-dark.png`, `creator-home-mobile.png` (390 px), `smb-home-desktop.png`,
+  `creator-tool.png`, `creator-blog.png`, `creator-post.png`, `smb-tool-dark.png`. Old screenshots removed.
+- InstaBox m_agq2dozxpck5jxkq45klnqw2fq: resumed, tarball (no node_modules/.next/media/.env) extracted over
+  /data/home/multisite, `pnpm install`, `pnpm migrate` (applied the new migration), `pnpm content:update`
+  (media created 46 -> /data/home/multisite/media), `rm -rf .next && pnpm build`, `bash start.sh`.
+  https://3000-... and https://3001-... -> 200, all `/_next/image` URLs 200 image/webp, 0 broken images in
+  Chromium, `/go/*` 302.
+- Gotchas: InstaBox POST endpoints need an `Idempotency-Key` header; exec body is `{"cmd": "..."}`.
+  The sandbox's proxy breaks fonts.googleapis.com TLS, so sandbox screenshots of the live site show fallback
+  fonts - not an app issue (the <link> is present; local screenshots show Poppins/Montserrat).

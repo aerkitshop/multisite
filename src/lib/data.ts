@@ -47,9 +47,13 @@ export const getTools = (siteId: ID) =>
       select: {
         name: true,
         slug: true,
+        tagline: true,
         shortDescription: true,
+        bestFor: true,
         logo: true,
+        cover: true,
         pricingModel: true,
+        startingPrice: true,
         pricingSummary: true,
         categories: true,
         tags: true,
@@ -157,25 +161,37 @@ export type PublicToolCard = {
   id: ID
   name: string
   slug: string
+  tagline: string | null
   shortDescription: string | null
+  bestFor: string | null
   logoUrl: string | null
+  coverUrl: string | null
+  coverAlt: string | null
   pricingModel: string | null
+  startingPrice: string | null
   pricingSummary: string | null
   featured: boolean
   categories: { slug: string; name: string }[]
   tags: string[]
   createdAt: string | null
+  updatedAt: string | null
 }
 
 export const toToolCard = (t: Tool): PublicToolCard => {
   const logo = t.logo && typeof t.logo === 'object' ? t.logo : null
+  const cover = t.cover && typeof t.cover === 'object' ? t.cover : null
   return {
     id: t.id,
     name: t.name,
     slug: t.slug,
+    tagline: t.tagline ?? null,
     shortDescription: t.shortDescription ?? null,
+    bestFor: t.bestFor ?? null,
     logoUrl: logo ? logo.sizes?.thumbnail?.url || logo.url || null : null,
+    coverUrl: cover ? cover.sizes?.large?.url || cover.url || null : null,
+    coverAlt: cover?.alt ?? null,
     pricingModel: t.pricingModel ?? null,
+    startingPrice: t.startingPrice ?? null,
     pricingSummary: t.pricingSummary ?? null,
     featured: Boolean(t.featured),
     categories: (t.categories || [])
@@ -183,5 +199,6 @@ export const toToolCard = (t: Tool): PublicToolCard => {
       .map((c) => ({ slug: c.slug, name: c.name })),
     tags: (t.tags || []).filter(Boolean) as string[],
     createdAt: t.createdAt ?? null,
+    updatedAt: t.updatedAt ?? null,
   }
 }

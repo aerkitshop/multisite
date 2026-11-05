@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import React from 'react'
 
+import { CategoryIcon } from '@/components/site/CategoryIcon'
 import { ToolDirectory } from '@/components/site/ToolDirectory'
 import { getCategories, getTools, toToolCard } from '@/lib/data'
 import { buildMetadata } from '@/lib/meta'
@@ -44,8 +45,11 @@ export default async function CategoryPage({ params }: Props) {
       <nav className="mb-6 text-sm text-muted-foreground">
         <Link href="/" className="hover:text-foreground">Home</Link> / <span className="text-foreground">{cat.name}</span>
       </nav>
-      <h1 className="text-3xl font-bold md:text-4xl">
-        {cat.icon ? `${cat.icon} ` : ''}Best {cat.name} tools
+      <h1 className="flex items-center gap-3 text-3xl font-bold tracking-tight md:text-4xl">
+        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border bg-card text-primary-text shadow-sm">
+          <CategoryIcon icon={cat.icon} className="h-5 w-5" />
+        </span>
+        Best {cat.name} tools
       </h1>
       {cat.description && <p className="mt-3 max-w-2xl text-muted-foreground">{cat.description}</p>}
       <div className="mt-10">

@@ -5,6 +5,8 @@ import React from 'react'
 
 import { cn } from '@/utilities/ui'
 
+import { CategoryIcon } from './CategoryIcon'
+
 export type NavCat = { slug: string; name: string; icon?: string | null; count: number }
 
 type Props = {
@@ -44,21 +46,26 @@ const Item: React.FC<{
 export const CategorySidebar: React.FC<Props> = ({ categories, total, active, onSelect, className }) => {
   const row = (on: boolean) =>
     cn(
-      'flex w-full items-start gap-2.5 rounded-lg px-3 py-2 text-left text-sm leading-snug transition',
-      on ? 'bg-primary/10 font-medium text-primary-text' : 'text-foreground/80 hover:bg-muted hover:text-foreground',
+      'group/item flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-sm leading-snug transition',
+      on ? 'bg-primary/10 font-medium text-primary-text' : 'text-foreground/75 hover:bg-muted hover:text-foreground',
     )
   const count = (on: boolean) =>
     cn(
-      'ml-auto shrink-0 rounded-md px-1.5 text-xs leading-5 tabular-nums',
-      on ? 'bg-primary/15 text-primary-text' : 'text-muted-foreground',
+      'ml-auto shrink-0 rounded-full px-2 text-[11px] font-medium leading-5 tabular-nums',
+      on ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground',
+    )
+  const iconBox = (on: boolean) =>
+    cn(
+      'flex h-7 w-7 shrink-0 items-center justify-center rounded-md border transition',
+      on ? 'border-primary/30 bg-background text-primary-text' : 'bg-background text-muted-foreground group-hover/item:text-foreground',
     )
   return (
     <aside aria-label="Categories" className={cn('hidden lg:block', className)}>
       <div className="sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto">
-        <nav className="space-y-0.5 rounded-xl border bg-card p-2">
-          <h2 className="px-3 pb-1.5 pt-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Categories</h2>
+        <nav className="space-y-0.5 rounded-2xl border bg-card p-2 shadow-[0_1px_2px_rgba(16,24,40,0.04)]">
+          <h2 className="px-2.5 pb-2 pt-1.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Categories</h2>
           <Item slug={null} active={!active} onSelect={onSelect} className={row(!active)}>
-            <span aria-hidden className="w-5 shrink-0 text-center">▦</span>
+            <span className={iconBox(!active)}><CategoryIcon icon="all" /></span>
             <span className="min-w-0">All tools</span>
             <span className={count(!active)}>{total}</span>
           </Item>
@@ -66,7 +73,7 @@ export const CategorySidebar: React.FC<Props> = ({ categories, total, active, on
             const on = active === c.slug
             return (
               <Item key={c.slug} slug={c.slug} active={on} onSelect={onSelect} className={row(on)}>
-                <span aria-hidden className="w-5 shrink-0 text-center">{c.icon || '•'}</span>
+                <span className={iconBox(on)}><CategoryIcon icon={c.icon} /></span>
                 <span className="min-w-0">{c.name}</span>
                 <span className={count(on)}>{c.count}</span>
               </Item>
@@ -82,7 +89,7 @@ export const CategorySidebar: React.FC<Props> = ({ categories, total, active, on
 export const CategoryChips: React.FC<Props> = ({ categories, total, active, onSelect, className }) => {
   const chip = (on: boolean) =>
     cn(
-      'shrink-0 whitespace-nowrap rounded-full border px-3 py-1.5 text-sm transition',
+      'inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border px-3 py-1.5 text-sm transition',
       on ? 'border-primary bg-primary text-primary-foreground' : 'bg-background text-muted-foreground hover:border-primary/60 hover:text-foreground',
     )
   return (
@@ -98,7 +105,7 @@ export const CategoryChips: React.FC<Props> = ({ categories, total, active, onSe
           onSelect={onSelect && ((s) => onSelect(s === active ? null : s))}
           className={chip(active === c.slug)}
         >
-          {c.icon ? `${c.icon} ` : ''}
+          <CategoryIcon icon={c.icon} className="h-3.5 w-3.5" />
           {c.name} <span className="opacity-70">{c.count}</span>
         </Item>
       ))}

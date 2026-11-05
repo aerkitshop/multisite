@@ -1,5 +1,5 @@
-/* eslint-disable @next/next/no-img-element */
 import type { Metadata } from 'next'
+import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import React from 'react'
@@ -51,7 +51,7 @@ export default async function PostPage({ params }: Props) {
   const path = `/blog/${post.slug}`
   const headings = extractHeadings(post.content)
   const tools = (post.relatedTools || []).filter((t): t is Tool => typeof t === 'object' && t !== null)
-  const hero = mediaUrl(post.heroImage, 'large')
+  const hero = mediaUrl(post.heroImage, 'large') || mediaUrl(post.heroImage)
   const faq = post.faq || []
 
   const ld: Record<string, unknown>[] = [
@@ -89,10 +89,14 @@ export default async function PostPage({ params }: Props) {
           <span className="rounded-full bg-primary/10 px-2.5 py-0.5 font-medium text-primary-text">{postTypeLabel[post.type] || post.type}</span>
           <time dateTime={post.publishedAt || undefined}>{formatDate(post.publishedAt)}</time>
         </div>
-        <h1 className="mt-4 text-3xl font-bold leading-tight md:text-5xl">{post.title}</h1>
-        {post.excerpt && <p className="mt-4 text-lg text-muted-foreground">{post.excerpt}</p>}
+        <h1 className="mt-4 text-balance text-3xl font-bold leading-[1.12] tracking-tight md:text-[2.75rem]">{post.title}</h1>
+        {post.excerpt && <p className="mt-4 text-pretty text-lg leading-relaxed text-muted-foreground">{post.excerpt}</p>}
       </header>
-      {hero && <img src={hero} alt="" className="mx-auto mt-10 aspect-[2/1] w-full max-w-5xl rounded-2xl border object-cover" />}
+      {hero && (
+        <div className="relative mx-auto mt-10 aspect-[2/1] w-full max-w-5xl overflow-hidden rounded-3xl border bg-muted shadow-[0_24px_48px_-24px_rgba(16,24,40,0.35)]">
+          <Image src={hero} alt="" fill priority sizes="(min-width: 1100px) 1024px, 100vw" className="object-cover" />
+        </div>
+      )}
 
       <div className="mx-auto mt-12 grid max-w-6xl gap-10 lg:grid-cols-[220px_1fr_260px]">
         <aside className="hidden lg:block">

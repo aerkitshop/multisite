@@ -4,7 +4,15 @@ import { withPayload } from '@payloadcms/next/withPayload'
 const nextConfig = {
   output: 'standalone',
   poweredByHeader: false,
-  images: { unoptimized: true },
+  images: {
+    // Payload media (/api/media/file/*) is resized + converted to WebP by Next's optimizer
+    // (sharp) and cached in .next/cache/images.
+    localPatterns: [{ pathname: '/api/media/file/**' }],
+    formats: ['image/webp'],
+    deviceSizes: [390, 640, 828, 1080, 1280, 1600],
+    imageSizes: [32, 48, 64, 96, 128, 256, 384],
+    minimumCacheTTL: 60 * 60 * 24 * 30,
+  },
   webpack: (webpackConfig) => {
     webpackConfig.resolve.extensionAlias = {
       '.cjs': ['.cts', '.cjs'],

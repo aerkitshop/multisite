@@ -3,6 +3,8 @@
 import Link from 'next/link'
 import React, { useEffect, useRef, useState } from 'react'
 
+import { CategoryIcon } from './CategoryIcon'
+
 type Cat = { slug: string; name: string; icon?: string | null }
 
 /** Small "Categories" dropdown in the header; closes on outside click, Escape or selection. */
@@ -38,9 +40,9 @@ export const CategoriesMenu: React.FC<{ categories: Cat[]; className?: string }>
                 role="menuitem"
                 href={`/category/${c.slug}`}
                 onClick={() => setOpen(false)}
-                className="block whitespace-nowrap rounded-lg px-3 py-2 text-popover-foreground hover:bg-muted"
+                className="flex items-center gap-2.5 whitespace-nowrap rounded-lg px-3 py-2 text-popover-foreground hover:bg-muted"
               >
-                {c.icon ? `${c.icon} ` : ''}
+                <CategoryIcon icon={c.icon} className="text-muted-foreground" />
                 {c.name}
               </Link>
             </li>

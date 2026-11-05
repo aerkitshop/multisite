@@ -5,7 +5,7 @@ import React from 'react'
 
 import { HomeDirectory } from '@/components/site/HomeDirectory'
 import { JsonLd } from '@/components/site/JsonLd'
-import { formatDate } from '@/components/site/PostCard'
+import { PostCard } from '@/components/site/PostCard'
 import { getCategories, getPosts, getTools, toToolCard } from '@/lib/data'
 import { buildMetadata } from '@/lib/meta'
 import { absoluteUrl, getSiteByDomain } from '@/lib/site'
@@ -40,6 +40,11 @@ export default async function HomePage({ params }: Props) {
   const cards = tools
     .map(toToolCard)
     .sort((a, b) => Number(b.featured) - Number(a.featured) || time(b.createdAt) - time(a.createdAt))
+  // "Updated Nov 2026 · 6 tools hand-tested" - month of the most recent listing update.
+  const lastUpdate = Math.max(0, ...cards.map((t) => time(t.updatedAt)))
+  const kicker = cards.length
+    ? `${lastUpdate ? `Updated ${new Date(lastUpdate).toLocaleDateString('en-US', { month: 'short', year: 'numeric', timeZone: 'UTC' })} · ` : ''}${cards.length} tools hand-tested`
+    : null
   const cats = categories
     .map((c) => ({
       slug: c.slug,
@@ -77,29 +82,23 @@ export default async function HomePage({ params }: Props) {
       <HomeDirectory
         title={site.heroTitle || site.tagline || site.name}
         subtitle={site.heroSubtitle}
+        kicker={kicker}
         tools={cards}
         categories={cats}
       >
         {posts.length > 0 && (
-          <section className="mt-10" aria-label="Latest posts">
-            <div className="mb-2 flex items-baseline justify-between">
-              <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Latest posts</h2>
+          <section className="mt-14" aria-label="Latest from the blog">
+            <div className="mb-4 flex items-baseline justify-between">
+              <h2 className="text-lg font-semibold tracking-tight">Latest from the blog</h2>
               <Link href="/blog" className="text-sm font-medium text-primary-text hover:underline">
                 All posts →
               </Link>
             </div>
-            <ul className="grid gap-3 md:grid-cols-3">
+            <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
               {posts.map((p) => (
-                <li key={p.id} className="rounded-lg border bg-card px-3.5 py-3">
-                  <Link href={`/blog/${p.slug}`} className="line-clamp-2 text-sm font-medium leading-snug hover:text-primary-text">
-                    {p.title}
-                  </Link>
-                  <time dateTime={p.publishedAt || undefined} className="mt-1 block text-xs text-muted-foreground">
-                    {formatDate(p.publishedAt)}
-                  </time>
-                </li>
+                <PostCard key={p.id} post={p} compact />
               ))}
-            </ul>
+            </div>
           </section>
         )}
       </HomeDirectory>

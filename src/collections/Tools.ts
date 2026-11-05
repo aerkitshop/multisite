@@ -33,7 +33,14 @@ export const Tools: CollectionConfig = {
           label: 'Listing',
           fields: [
             { name: 'websiteUrl', type: 'text', required: true, admin: { description: 'Official site (https://…)' } },
-            { name: 'shortDescription', type: 'textarea', maxLength: 240 },
+            {
+              name: 'tagline',
+              type: 'text',
+              maxLength: 90,
+              admin: { description: 'One sharp line shown under the name on cards (e.g. "Edit video by editing the transcript").' },
+            },
+            { name: 'shortDescription', type: 'textarea', maxLength: 240, admin: { description: 'Two lines: what it does + concrete use cases.' } },
+            { name: 'bestFor', type: 'text', maxLength: 140, admin: { description: 'Who should pick it, e.g. "Podcasters and talking-head YouTubers".' } },
             { name: 'description', type: 'richText' },
             {
               type: 'row',
@@ -52,8 +59,20 @@ export const Tools: CollectionConfig = {
                 },
               ],
             },
-            { name: 'pricingSummary', type: 'text', admin: { description: 'e.g. "Free plan; Pro from $12/mo"' } },
-            { name: 'screenshots', type: 'upload', relationTo: 'media', hasMany: true },
+            {
+              type: 'row',
+              fields: [
+                { name: 'startingPrice', type: 'text', admin: { description: 'Short card label, e.g. "From $16/mo". Verify on the pricing page.' } },
+                { name: 'pricingSummary', type: 'text', admin: { description: 'e.g. "Free plan; Pro from $12/mo"' } },
+              ],
+            },
+            {
+              name: 'cover',
+              type: 'upload',
+              relationTo: 'media',
+              admin: { description: '16:9 product image (official og:image or screenshot). Shown on cards and as the tool-page hero.' },
+            },
+            { name: 'screenshots', type: 'upload', relationTo: 'media', hasMany: true, admin: { description: 'Gallery on the tool page.' } },
             {
               name: 'features',
               type: 'array',

@@ -12,48 +12,12 @@
  */
 import config from '@payload-config'
 import { getPayload, type Payload } from 'payload'
-import sharp from 'sharp'
 
 import { demoSites, type SeedSite } from './data'
 import { lexical } from './lexical'
+import { ensureMedia } from './media'
 
 const ctx = { disableRevalidate: true }
-
-const svgPng = async (svg: string, w: number, h: number) =>
-  sharp(Buffer.from(svg)).resize(w, h).png().toBuffer()
-
-const logoSvg = (letter: string, color: string) => `
-<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
-  <rect width="256" height="256" rx="56" fill="${color}"/>
-  <circle cx="200" cy="56" r="28" fill="#ffffff" fill-opacity="0.25"/>
-  <text x="128" y="160" font-family="DejaVu Sans, Arial, sans-serif" font-size="128" font-weight="700" fill="#ffffff" text-anchor="middle">${letter}</text>
-</svg>`
-
-const shotSvg = (title: string, color: string, accent: string, n: number) => `
-<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900">
-  <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-    <stop offset="0" stop-color="${color}"/><stop offset="1" stop-color="${accent}"/></linearGradient></defs>
-  <rect width="1600" height="900" fill="url(#g)"/>
-  <rect x="120" y="110" width="1360" height="680" rx="28" fill="#ffffff" fill-opacity="0.92"/>
-  <rect x="120" y="110" width="1360" height="64" rx="28" fill="#0f172a" fill-opacity="0.08"/>
-  <circle cx="165" cy="142" r="10" fill="#ef4444"/><circle cx="200" cy="142" r="10" fill="#f59e0b"/><circle cx="235" cy="142" r="10" fill="#22c55e"/>
-  <rect x="180" y="230" width="${300 + n * 120}" height="36" rx="10" fill="${color}" fill-opacity="0.85"/>
-  <rect x="180" y="300" width="900" height="22" rx="8" fill="#0f172a" fill-opacity="0.15"/>
-  <rect x="180" y="342" width="760" height="22" rx="8" fill="#0f172a" fill-opacity="0.12"/>
-  <rect x="180" y="420" width="560" height="300" rx="18" fill="${accent}" fill-opacity="0.25"/>
-  <rect x="780" y="420" width="640" height="300" rx="18" fill="${color}" fill-opacity="0.18"/>
-  <text x="800" y="840" font-family="DejaVu Sans, Arial, sans-serif" font-size="40" fill="#ffffff" text-anchor="middle">${title} - demo screenshot ${n}</text>
-</svg>`
-
-const upload = async (payload: Payload, tenant: number, name: string, alt: string, data: Buffer) => {
-  const doc = await payload.create({
-    collection: 'media',
-    data: { alt, tenant },
-    file: { data, mimetype: 'image/png', name, size: data.length },
-    context: ctx,
-  })
-  return doc.id
-}
 
 const wipeDemoSite = async (payload: Payload, siteId: number) => {
   // Only documents that belong to THIS demo site.
@@ -85,8 +49,8 @@ const seedSite = async (payload: Payload, s: SeedSite) => {
   })
   const tenant = site.id as number
 
-  const logo = await upload(payload, tenant, `${s.slug}-logo.png`, `${s.name} logo`, await svgPng(logoSvg(s.name[0], s.colors.primary), 256, 256))
-  const og = await upload(payload, tenant, `${s.slug}-og.png`, s.name, await svgPng(shotSvg(s.name, s.colors.primary, s.colors.accent, 1), 1600, 900))
+  const logo = (await ensureMedia(payload, tenant, `site-${s.slug}-logo.webp`, `${s.name} logo`, `${s.slug}-site-${s.slug}-logo.webp`)).id
+  const og = (await ensureMedia(payload, tenant, `site-${s.slug}-og.webp`, `${s.name} - ${s.tagline}`, `${s.slug}-site-${s.slug}-og.webp`)).id
   await payload.update({ collection: 'sites', id: tenant, data: { logo, favicon: logo, seo: { ...s.seo, ogImage: og } }, context: ctx })
 
   const catIds: Record<string, number> = {}
@@ -97,11 +61,11 @@ const seedSite = async (payload: Payload, s: SeedSite) => {
 
   const toolIds: Record<string, number> = {}
   for (const [i, t] of s.tools.entries()) {
-    const tLogo = await upload(payload, tenant, `${s.slug}-${t.slug}-logo.png`, `${t.name} logo`, await svgPng(logoSvg(t.name[0], t.color), 256, 256))
-    const shots = [
-      await upload(payload, tenant, `${s.slug}-${t.slug}-1.png`, `${t.name} screenshot 1`, await svgPng(shotSvg(t.name, t.color, s.colors.accent, 1), 1600, 900)),
-      await upload(payload, tenant, `${s.slug}-${t.slug}-2.png`, `${t.name} screenshot 2`, await svgPng(shotSvg(t.name, t.color, s.colors.primary, 2), 1600, 900)),
-    ]
+    const asset = async (file: string, alt: string) => (await ensureMedia(payload, tenant, file, alt, `${s.slug}-${file}`)).id
+    const tLogo = await asset(t.images.logo, `${t.name} logo`)
+    const tCover = await asset(t.images.cover, `${t.name} - ${t.tagline}`)
+    const shots: number[] = []
+    for (const g of t.images.gallery) shots.push(g === t.images.cover ? tCover : await asset(g, `${t.name} ${g.includes('-home') ? 'homepage' : 'product image'}`))
     const doc = await payload.create({
       collection: 'tools',
       context: ctx,
@@ -110,7 +74,11 @@ const seedSite = async (payload: Payload, s: SeedSite) => {
         name: t.name,
         slug: t.slug,
         websiteUrl: t.websiteUrl,
+        tagline: t.tagline,
         shortDescription: t.shortDescription,
+        bestFor: t.bestFor,
+        startingPrice: t.startingPrice,
+        cover: tCover,
         description: lexical(t.about.map((p) => ['p', p] as ['p', string])) as never,
         features: t.features,
         pricingModel: t.pricingModel,
@@ -126,14 +94,17 @@ const seedSite = async (payload: Payload, s: SeedSite) => {
         affiliateStatus: t.affiliateStatus ?? 'none',
         commissionNote: t.commissionNote,
         affiliateLastCheckedAt: t.affiliateStatus && t.affiliateStatus !== 'none' ? new Date().toISOString() : undefined,
-        sourceUrls: [{ url: t.websiteUrl, note: 'Official website' }],
+        sourceUrls: [
+          { url: t.websiteUrl, note: 'Official website' },
+          { url: t.pricingUrl, note: 'Official pricing page (checked Nov 2026)' },
+        ],
       },
     })
     toolIds[t.slug] = doc.id as number
   }
 
   for (const [i, p] of s.posts.entries()) {
-    const hero = await upload(payload, tenant, `${s.slug}-${p.slug}-hero.png`, p.title, await svgPng(shotSvg(p.title.slice(0, 40), s.colors.primary, s.colors.accent, i + 1), 1600, 900))
+    const hero = (await ensureMedia(payload, tenant, p.cover, p.title, `${s.slug}-${p.cover}`)).id
     await payload.create({
       collection: 'posts',
       context: ctx,

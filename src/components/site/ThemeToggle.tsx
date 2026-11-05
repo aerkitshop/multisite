@@ -1,5 +1,6 @@
 'use client'
 
+import { Moon, Sun } from 'lucide-react'
 import React from 'react'
 
 import { useTheme } from '@/providers/Theme'
@@ -12,9 +13,9 @@ export const ThemeToggle: React.FC = () => {
       type="button"
       aria-label={`Switch to ${next} mode`}
       onClick={() => setTheme(next)}
-      className="flex h-8 w-8 items-center sm:h-9 sm:w-9 justify-center rounded-lg border text-sm hover:bg-muted"
+      className="flex h-8 w-8 items-center justify-center rounded-lg border text-muted-foreground transition hover:bg-muted hover:text-foreground sm:h-9 sm:w-9"
     >
-      <span aria-hidden>{theme === 'dark' ? '☀' : '☾'}</span>
+      {theme === 'dark' ? <Sun aria-hidden className="h-4 w-4" /> : <Moon aria-hidden className="h-4 w-4" />}
     </button>
   )
 }

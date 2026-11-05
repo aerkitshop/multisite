@@ -1,4 +1,4 @@
-/* eslint-disable @next/next/no-img-element */
+import Image from 'next/image'
 import Link from 'next/link'
 import React from 'react'
 
@@ -21,7 +21,7 @@ export const SiteHeader: React.FC<{ site: Site; categories: Cat[] }> = ({ site, 
       <div className="container flex h-14 items-center justify-between gap-1.5 sm:gap-2">
         <Link href="/" className="flex min-w-0 items-center gap-1.5 font-semibold sm:gap-2">
           {logo ? (
-            <img src={logo} alt="" width={28} height={28} className="h-7 w-7 shrink-0 rounded-lg object-cover" />
+            <Image src={logo} alt="" width={28} height={28} priority className="h-7 w-7 shrink-0 rounded-lg object-cover" />
           ) : (
             <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-primary text-sm text-primary-foreground">
               {site.name.slice(0, 1)}

@@ -15,7 +15,8 @@
     "start": "cross-env NODE_OPTIONS=--no-deprecation next start",
     "migrate": "cross-env NODE_OPTIONS=--no-deprecation payload migrate",
     "migrate:create": "cross-env NODE_OPTIONS=--no-deprecation payload migrate:create",
-    "seed": "cross-env NODE_OPTIONS=--no-deprecation payload run src/seed/run.ts"
+    "seed": "cross-env NODE_OPTIONS=--no-deprecation payload run src/seed/run.ts",
+    "content:update": "cross-env NODE_OPTIONS=--no-deprecation payload run src/seed/update-content.ts"
   },
   "dependencies": {
     "@payloadcms/next": "3.85.1",

@@ -325,7 +325,18 @@ export interface Tool {
    * Official site (https://…)
    */
   websiteUrl: string;
+  /**
+   * One sharp line shown under the name on cards (e.g. "Edit video by editing the transcript").
+   */
+  tagline?: string | null;
+  /**
+   * Two lines: what it does + concrete use cases.
+   */
   shortDescription?: string | null;
+  /**
+   * Who should pick it, e.g. "Podcasters and talking-head YouTubers".
+   */
+  bestFor?: string | null;
   description?: {
     root: {
       type: string;
@@ -344,9 +355,20 @@ export interface Tool {
   logo?: (number | null) | Media;
   pricingModel?: ('free' | 'freemium' | 'paid' | 'trial') | null;
   /**
+   * Short card label, e.g. "From $16/mo". Verify on the pricing page.
+   */
+  startingPrice?: string | null;
+  /**
    * e.g. "Free plan; Pro from $12/mo"
    */
   pricingSummary?: string | null;
+  /**
+   * 16:9 product image (official og:image or screenshot). Shown on cards and as the tool-page hero.
+   */
+  cover?: (number | null) | Media;
+  /**
+   * Gallery on the tool page.
+   */
   screenshots?: (number | Media)[] | null;
   features?:
     | {
@@ -825,11 +847,15 @@ export interface ToolsSelect<T extends boolean = true> {
   featured?: T;
   sortOrder?: T;
   websiteUrl?: T;
+  tagline?: T;
   shortDescription?: T;
+  bestFor?: T;
   description?: T;
   logo?: T;
   pricingModel?: T;
+  startingPrice?: T;
   pricingSummary?: T;
+  cover?: T;
   screenshots?: T;
   features?:
     | T
